@@ -9,6 +9,7 @@ import java.util.Date;
 public class ClientInfoEntity extends CommonEntity {
 
     @Column(name = "email")
+    @Convert(converter = CryptoConverterAES.class)
     private String email;
 
     @ManyToOne()

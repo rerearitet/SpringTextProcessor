@@ -18,6 +18,7 @@ public class ClientEntity extends CommonEntity {
     public ClientEntity() {}
 
     @Column(name = "name")
+    @Convert(converter = CryptoConverterAES.class)
     private String fullname;
 
    /* @Column(name = "create_timestamtp")

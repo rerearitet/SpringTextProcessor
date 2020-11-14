@@ -1,9 +1,6 @@
 package com.ithillel.persistence.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
 @Embeddable
 public class ClientCommonInfo {
@@ -13,6 +10,7 @@ public class ClientCommonInfo {
     private ClientType clientType;
 
     @Column(name = "description")
+    @Convert(converter = CryptoConverterAES.class)
     private String description;
 
     public ClientType getClientType() {
