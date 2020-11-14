@@ -4,8 +4,9 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.persistence.AttributeConverter;
 
-public class CryptoConverterAES {
+public class CryptoConverterAES implements AttributeConverter<String, String> {
     private static Cipher cipher;
     private SecretKey secretKey;
 
@@ -28,21 +29,31 @@ public class CryptoConverterAES {
         cipher = Cipher.getInstance("AES"); //SunJCE provider AES algorithm, mode(optional) and padding schema(optional)
     }
 
-    public String encrypt(String plainText) throws Exception {
-        byte[] plainTextByte = plainText.getBytes();
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] encryptedByte = cipher.doFinal(plainTextByte);
-        Base64.Encoder encoder = Base64.getEncoder();
-        String encryptedText = encoder.encodeToString(encryptedByte);
-        return encryptedText;
+    @Override
+    public String convertToDatabaseColumn(String plainText) {
+        try {
+            byte[] plainTextByte = plainText.getBytes();
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedByte = cipher.doFinal(plainTextByte);
+            Base64.Encoder encoder = Base64.getEncoder();
+            String encryptedText = encoder.encodeToString(encryptedByte);
+            return encryptedText;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    public String decrypt(String encryptedText) throws Exception {
-        Base64.Decoder decoder = Base64.getDecoder();
-        byte[] encryptedTextByte = decoder.decode(encryptedText);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] decryptedByte = cipher.doFinal(encryptedTextByte);
-        String decryptedText = new String(decryptedByte);
-        return decryptedText;
+    @Override
+    public String convertToEntityAttribute(String encryptedText) {
+        try {
+            Base64.Decoder decoder = Base64.getDecoder();
+            byte[] encryptedTextByte = decoder.decode(encryptedText);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decryptedByte = cipher.doFinal(encryptedTextByte);
+            String decryptedText = new String(decryptedByte);
+            return decryptedText;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
